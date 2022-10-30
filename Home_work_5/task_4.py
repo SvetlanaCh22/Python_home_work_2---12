@@ -1,6 +1,6 @@
 #  Реализуйте RLE алгоритм: реализуйте модуль сжатия и восстановления данных.
 
-def incodeRLE(exp):
+def EncodeRLE(exp):
     incoding = ""
     i = 0
     while i < len(exp):
@@ -13,7 +13,7 @@ def incodeRLE(exp):
     return incoding
 
 
-def decodeRLE(exp):
+def DecodeRLE(exp):
     decode = ''
     count = ''
     for char in exp:
@@ -25,33 +25,8 @@ def decodeRLE(exp):
     return decode
 
 
-#origin ='kkkiiggwwwwwwwl'
-# print(incodeRLE(origin))
-#convert = incodeRLE(origin)
-# print(decodeRLE(convert))
-
-
-# _________________________________________________________________________
-# Если без функций
-
-origin = 'fffffffeerkll'
-incoding = ""
-i = 0
-while i < len(origin):
-    count = 1
-    while i + 1 < len(origin) and origin[i] == origin[i + 1]:
-        count = count + 1
-        i = i + 1
-    incoding += str(count) + origin[i]
-    i = i + 1
-print(incoding)
-
-decode = ''
-count = ''
-for char in incoding:
-    if char.isdigit():
-        count += char
-    else:
-        decode += char * int(count)
-        count = ''
-print(decode)
+origin ='kkkiiggwwwwwwwl'
+print("Исходный вариант:", origin)
+convert = EncodeRLE(origin)
+print("Пакованный вариант:", convert)
+print("Распакованный вариант:", DecodeRLE(convert))
