@@ -1,35 +1,19 @@
 import mod_init
-import mod_menu
-import mod_add
-import mod_remove
-import mod_remove_all
-import mod_search
-import mod_view
-import os
+
+# Урок 8. Python: от простого к практике. Продолжение
+# Доделать решение задачи про базы данных: Создать прототип интерактивной базы данных,
+# содержащую информацию о сотрудниках некой компании (кто желает может создать
+# несколько связанных таблиц или полноценную базу данных). Программа должна иметь
+# возможность изменять данные (добавлять, удалять), осуществлять сохранение и загрузку.
+# А также выводить данные в консоль. Добавить логирование.
+# Упорядочить вывод в консоль, сделать его красивым.
+
+# Сделано:
+# 1) две базы данных (городов и сотрудников с привязкой к базе городов)
+# 2) исправлены все ошибки в прошлой работе, добавлены где нужно обработчики неверного ввода
+# 3) сделано логгирование в файл
+# 4) сделан, насколько это возможно, красивый вывод в консоли
+# 5) проведен некоторый рефакторинг кода
 
 # Код основной функции
-clear = lambda: os.system('cls')
-clear()
-print("\nДобро пожаловать в телефонный справочник.\n")
-ch = 1
-dir_path = os.path.dirname(os.path.realpath(__file__))
-if os.path.exists(dir_path+'\spravochnik.json'):
-    pb = mod_init.open_exist()
-else:
-    pb = mod_init.initial_phonebook()
-while ch in (1, 2, 3, 4, 5):
-    ch = mod_menu.menu()
-    if ch == 1:
-        pb = mod_add.add_contact(pb)
-    elif ch == 2:
-        pb = mod_remove.remove_existing(pb)
-    elif ch == 3:
-        pb = mod_remove_all.delete_all(pb)
-    elif ch == 4:
-        d = mod_search.search_existing(pb)
-        if d == -1:
-            print("Контакт не существует. Пожалуйста, попробуйте еще раз")
-    elif ch == 5:
-        mod_view.display_all(pb)
-    else:
-        print("До свидания :)")
+mod_init.start()

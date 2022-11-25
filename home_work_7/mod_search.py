@@ -1,10 +1,18 @@
+import os
 import mod_view
+from mod_log import LOG
+from mod_city import get_city_id
 
+@LOG
 def search_existing(pb):
-# Эта функция ищет существующий контакт и отображает результат
-    choice = int(input("\nВведите критерии поиска\
-    \n1. ID\n2. Имя\n3. Фамилия\n4. День рождения\n5. Место работы\n6. Телефон\
-    \nПожалуйста, введите: "))
+    """ Эта функция ищет существующий контакт и отображает результат """
+    try:
+        choice = int(input("\nВведите критерии поиска\
+        \n1. ID\n2. Имя\n3. Фамилия\n4. День рождения\n5. Город проживания\n6. Телефон\
+        \nПожалуйста, введите: "))
+    except ValueError:
+        print('Пожалуйста, введите число от 1 до 6')
+        return -1
     temp = []
     check = -1
     if choice == 1:
@@ -33,15 +41,13 @@ def search_existing(pb):
                 check = i
                 temp.append(pb[i])
     elif choice == 5:
-        query = str(
-            input("\nПожалуйста, введите место работы: "))
+        query = str(input("\nПожалуйста, введите город проживания: "))
         for i in range(len(pb)):
-            if query == pb[i][4]:
+            if get_city_id(query) == pb[i][4]:
                 check = i
                 temp.append(pb[i])
     elif choice == 6:
-        query = str(
-            input("\nПожалуйста, введите номер телефона: "))
+        query = str(input("\nПожалуйста, введите номер телефона: "))
         for i in range(len(pb)):
             if query == pb[i][5]:
                 check = i
@@ -54,5 +60,6 @@ def search_existing(pb):
         return -1
     # возвращение -1 указывает, что запрос не существует в каталоге
     else:
+        os.system('cls' if os.name=='nt' else 'clear')
         mod_view.display_all(temp)
         return check

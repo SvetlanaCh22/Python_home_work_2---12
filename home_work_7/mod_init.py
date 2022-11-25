@@ -1,20 +1,30 @@
+import mod_menu
+import mod_add
+import mod_remove
+import mod_remove_all
+import mod_search
 import mod_view
-import sys
 import json
 import os
+from mod_log import LOG
+from mod_city import get_city_id
 
+
+def get_dir():
+    return os.path.dirname(os.path.realpath(__file__))
+
+@LOG
 def open_exist():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(dir_path+'\spravochnik.json', 'r', encoding='utf-8') as file:
-        phone_book = json.loads(file.read())
-    mod_view.display_all(phone_book)
-    return phone_book
+    with open(get_dir()+'\db_main.json', 'r', encoding='utf-8') as file:
+        pb = json.loads(file.read())
+    mod_view.display_all(pb)
+    return pb
 
-def initial_phonebook():
+@LOG
+def initial_database():
     temp = []
     print('Чтобы начать предлагаем сохранить первый контакт\n')
-    print('В случае если Вы не собираетесь сейчас ничего вводить, нажмите 0')
-    phone_book = []
+    pb = []
     rows = 1
     cols = 6
     for i in range(rows):
@@ -22,25 +32,53 @@ def initial_phonebook():
             if j == 0:
                 temp.append(str(input("Введите ID: ")))
                 if temp[j] == '' or temp[j] == ' ':
-                    sys.exit("ID является обязательным полем.")
+                    print("ID является обязательным полем.")
+                    return
             if j == 1:
                 temp.append(str(input("Введите имя: "))) 
                 if temp[j] == '' or temp[j] == ' ': 
-                    sys.exit("Имя является обязательным полем.")
+                    print("Имя является обязательным полем.")
+                    return
             if j == 2:
                 temp.append(str(input("Введите фамилию: ")))
             if j == 3:
                 temp.append(str(input("Введите день рождения (дд/мм/гг): ")))
             if j == 4:
-                temp.append(str(input("Введите место работы: ")))
+                temp.append(get_city_id(str(input("Город проживания: "))))
             if j == 5:
                 temp.append(str(input("Введите номер телефона: ")))
-    phone_book.append(temp)
-    mod_view.display_all(phone_book)
-    save_phonebook(temp)
-    return phone_book
+    pb.append(temp)
+    mod_view.display_all(pb)
+    save_database(pb)
+    return pb
 
-def save_phonebook(pb):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(dir_path+'\spravochnik.json', 'w', encoding='utf-8') as file:
+@LOG
+def save_database(pb):
+    with open(get_dir()+'\db_main.json', 'w', encoding='utf-8') as file:
         file.write(json.dumps(pb))
+
+@LOG
+def start():
+    os.system('cls' if os.name=='nt' else 'clear')
+    print("\nБаза сотрудников компании\n")
+    ch = 1
+    if os.path.exists(get_dir()+'\db_main.json'):
+        pb = open_exist()
+    else:
+        pb = initial_database()
+    while ch in (1, 2, 3, 4, 5):
+        ch = mod_menu.menu()
+        if ch == 1:
+            pb = mod_add.add_contact(pb)
+        elif ch == 2:
+            pb = mod_remove.remove_existing(pb)
+        elif ch == 3:
+            pb = mod_remove_all.delete_all(pb)
+        elif ch == 4:
+            d = mod_search.search_existing(pb)
+            if d == -1:
+                print("\nКонтакт не существует. Пожалуйста, попробуйте еще раз")
+        elif ch == 5:
+            mod_view.display_all(pb)
+        else:
+            print("\nДо свидания :)")
