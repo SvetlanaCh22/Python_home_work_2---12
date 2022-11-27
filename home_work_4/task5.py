@@ -2,37 +2,51 @@
 #  Задача - сформировать файл, содержащий сумму многочленов.
 
 import random, os
+from mod_log import LOG
 
-def fillcoeff(k, min=0, max=100) -> list:
-    new_list = [random.randint(min, max)]
-    while new_list[0] == 0:
-        new_list[0] = random.randint(min, max)
-    for i in range (1, k+1):
-        new_list.append(random.randint(min, max)) 
-    return new_list
-
-
-# запись в файл
-def writefile(k: int, user_list, user_file: str):
-    with open(user_file, 'w', encoding='utf-8') as pol:
-        if user_list[0] == 1:
-            pol.write(f'x^{k}')
-        else:
-            pol.write(f'{user_list[0]}x^{k}')
-        for i in range(1,k+1):
-            if user_list[i] != 0:
-                if user_list[i] > 0:
-                    pol.write('+')
-                if user_list[i] != 1:
-                    pol.write(f'{user_list[i]}')
-                if i != k and i != k-1:
-                    pol.write(f'x^{k-i}')
-                elif i == k-1:
-                    pol.write('x')
-        pol.write('=0')
+@LOG
+def write_file(name,st):
+    """запись в файл"""
+    with open(name, 'w') as data:
+        data.write(st)
         
-# получение степени многочлена
+@LOG
+def rnd():
+    """создание случайного числа от 0 до 100"""
+    return random.randint(0,101)
+
+@LOG
+def create_mn(k):
+    """создание коэффициентов многочлена"""
+    lst = [rnd() for i in range(k+1)]
+    return lst
+
+@LOG
+def create_str(sp):
+    """создание многочлена в виде строки"""
+    lst= sp[::-1]
+    wr = ''
+    if len(lst) < 1:
+        wr = 'x = 0'
+    else:
+        for i in range(len(lst)):
+            if i != len(lst) - 1 and lst[i] != 0 and i != len(lst) - 2:
+                wr += f'{lst[i]}x^{len(lst)-i-1}'
+                if lst[i+1] != 0 or lst[i+2] != 0:
+                    wr += ' + '
+            elif i == len(lst) - 2 and lst[i] != 0:
+                wr += f'{lst[i]}x'
+                if lst[i+1] != 0 or lst[i+2] != 0:
+                    wr += ' + '
+            elif i == len(lst) - 1 and lst[i] != 0:
+                wr += f'{lst[i]} = 0'
+            elif i == len(lst) - 1 and lst[i] == 0:
+                wr += ' = 0'
+    return wr
+
+@LOG
 def sq_mn(k):
+    """получение степени многочлена"""
     if 'x^' in k:
         i = k.find('^')
         num = int(k[i+1:])
@@ -42,16 +56,18 @@ def sq_mn(k):
         num = -1
     return num
 
-# получение коэффицента члена многочлена
+@LOG
 def k_mn(k):
+    """получение коэффицента члена многочлена"""
     if 'x' in k:
         i = k.find('x')
         num = int(k[:i])
     return num
 
-# разбор многочлена и получение его коэффициентов
+@LOG
 def calc_mn(st):
-    st = st[0].replace(' ', '').split('=')
+    """разбор многочлена и получение его коэффициентов"""
+    st = st.replace(' ', '').split('=')
     st = st[0].split('+')
     lst = []
     l = len(st)
@@ -73,41 +89,51 @@ def calc_mn(st):
         
     return lst
 
-app_path = os.path.abspath(__file__).replace(os.path.basename(__file__), '')
+@LOG
+def mn_summ(mn1, mn2):
+    """находим сумму"""
+    lst1 = calc_mn(mn1)
+    lst2 = calc_mn(mn2)
+    ll = len(lst1)
+    if len(lst1) > len(lst2):
+        ll = len(lst2)
+    lst_new = [lst1[i] + lst2[i] for i in range(ll)]
+    if len(lst1) > len(lst2):
+        mm = len(lst1)
+        for i in range(ll,mm):
+            lst_new.append(lst1[i])
+    else:
+        mm = len(lst2)
+        for i in range(ll,mm):
+            lst_new.append(lst2[i])
 
-# генерируем файлы с многочленами
-writefile(2, fillcoeff(2), app_path+'Task5_1.txt')
-writefile(3, fillcoeff(3), app_path+'Task5_2.txt')
+    mn_new = create_str(lst_new)
+    return mn_new
 
-# открываем созданные файлы
-with open(app_path+'Task5_1.txt','r') as file:
-    Task5_1 = file.readline()
+@LOG
+def make_files_and_calc():
+    """генерируем файлы с многочленами"""
+    app_path = os.path.abspath(__file__).replace(os.path.basename(__file__), '')
 
-with open(app_path+'Task5_2.txt','r') as file:
-    Task5_2 = file.readline()
+    # генерируем файлы с многочленами
+    write_file(app_path+'Task5_1.txt', create_str(create_mn(2)))
+    write_file(app_path+'Task5_2.txt', create_str(create_mn(3)))
+
+    # открываем созданные файлы
+    with open(app_path+'Task5_1.txt','r') as file:
+        Task5_1 = file.readline()
+
+    with open(app_path+'Task5_2.txt','r') as file:
+        Task5_2 = file.readline()
     
-# находим сумму
+    mn_new = mn_summ(Task5_1, Task5_2)
+    
+    # запишем в файл
+    write_file(app_path+'summ.txt', mn_new)
 
-lst1 = calc_mn(Task5_1)
-lst2 = calc_mn(Task5_2)
-ll = len(lst1)
-if len(lst1) > len(lst2):
-    ll = len(lst2)
-lst_new = [lst1[i] + lst2[i] for i in range(ll)]
-if len(lst1) > len(lst2):
-    mm = len(lst1)
-    for i in range(ll,mm):
-        lst_new.append(lst1[i])
-else:
-    mm = len(lst2)
-    for i in range(ll,mm):
-        lst_new.append(lst2[i])
+    # выведем на экран что получилось
+    print(f"Многочлен 1: {Task5_1}")
+    print(f"Многочлен 2: {Task5_2}")
+    print(f"Сумма многочленов: {mn_new}")
 
-# запишем в файл
-with open(app_path+'summ.txt', 'w', encoding='utf-8') as file:
-    file.write(f'{lst_new}')
-
-# выведем на экран что получилось
-print(f"Многочлен 1: {Task5_1}")
-print(f"Многочлен 2: {Task5_2}")
-print(f"Сумма многочленов: {lst_new}")
+make_files_and_calc()
